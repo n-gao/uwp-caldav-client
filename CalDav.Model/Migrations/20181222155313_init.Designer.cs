@@ -8,8 +8,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CalDav.Model.Migrations
 {
     [DbContext(typeof(CalDavContext))]
-    [Migration("20181208213558_Init")]
-    partial class Init
+    [Migration("20181222155313_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -19,36 +19,41 @@ namespace CalDav.Model.Migrations
 
             modelBuilder.Entity("CalDav.Models.CalDavAppointment", b =>
                 {
-                    b.Property<string>("Href")
-                        .ValueGeneratedOnAdd();
+                    b.Property<int>("CalendarId");
 
-                    b.Property<string>("CalHref");
+                    b.Property<string>("Href");
+
+                    b.Property<string>("Etag");
 
                     b.Property<string>("LocalId");
 
-                    b.HasKey("Href");
-
-                    b.HasIndex("CalHref");
+                    b.HasKey("CalendarId", "Href");
 
                     b.ToTable("Appointments");
                 });
 
             modelBuilder.Entity("CalDav.Models.CalDavCalendar", b =>
                 {
-                    b.Property<string>("Href")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
                     b.Property<string>("Ctag");
 
-                    b.Property<string>("DisplayName");
+                    b.Property<string>("Displayname");
+
+                    b.Property<string>("Href");
+
+                    b.Property<bool>("Initialized");
 
                     b.Property<string>("LocalId");
 
                     b.Property<int>("ServerId");
 
+                    b.Property<bool>("ShouldSync");
+
                     b.Property<string>("SyncToken");
 
-                    b.HasKey("Href");
+                    b.HasKey("Id");
 
                     b.HasIndex("ServerId");
 
@@ -79,7 +84,8 @@ namespace CalDav.Model.Migrations
                 {
                     b.HasOne("CalDav.Models.CalDavCalendar", "Calendar")
                         .WithMany("Appointments")
-                        .HasForeignKey("CalHref");
+                        .HasForeignKey("CalendarId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("CalDav.Models.CalDavCalendar", b =>

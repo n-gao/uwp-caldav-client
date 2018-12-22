@@ -109,7 +109,7 @@ namespace CalDav.Views
             if (index >= 0 && index < Servers.Count)
             {
                 var server = Servers[index];
-                await CalDavHelper.ValidateServer(server);
+                await CalDavHelper.ValidateServer(server, true);
                 RefreshDataGrid();
             }
         }

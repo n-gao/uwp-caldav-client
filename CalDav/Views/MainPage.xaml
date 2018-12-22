@@ -62,7 +62,13 @@
                 <controls:DataGrid.Columns>
                     <controls:DataGridTextColumn x:Uid="GridColumn_Host" Binding="{Binding Host}"/>
                     <controls:DataGridTextColumn x:Uid="GridColumn_Username" Binding="{Binding Username}"/>
-                    <controls:DataGridTextColumn x:Uid="GridColumn_Password" Binding="{Binding Password}"/>
+                    <controls:DataGridTemplateColumn x:Uid="GridColumn_Password">
+                        <controls:DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <PasswordBox Password="{Binding Password}"/>
+                            </DataTemplate>
+                        </controls:DataGridTemplateColumn.CellTemplate>
+                    </controls:DataGridTemplateColumn>
                     <controls:DataGridCheckBoxColumn x:Uid="GridColumn_Valid" Binding="{Binding Valid}"/>
                     <controls:DataGridTemplateColumn x:Uid="GridColumn_Actions">
                         <controls:DataGridTemplateColumn.CellTemplate>

@@ -2,7 +2,7 @@
 
 namespace CalDav.Model.Migrations
 {
-    public partial class Init : Migration
+    public partial class init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -32,7 +32,7 @@ namespace CalDav.Model.Migrations
                     Href = table.Column<string>(nullable: true),
                     Ctag = table.Column<string>(nullable: true),
                     SyncToken = table.Column<string>(nullable: true),
-                    DisplayName = table.Column<string>(nullable: true),
+                    Displayname = table.Column<string>(nullable: true),
                     LocalId = table.Column<string>(nullable: true),
                     ShouldSync = table.Column<bool>(nullable: false),
                     ServerId = table.Column<int>(nullable: false),

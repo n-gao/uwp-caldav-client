@@ -37,7 +37,7 @@ namespace CalDav.Model.Migrations
 
                     b.Property<string>("Ctag");
 
-                    b.Property<string>("DisplayName");
+                    b.Property<string>("Displayname");
 
                     b.Property<string>("Href");
 

@@ -23,13 +23,23 @@ namespace CalDav.Helpers
         }
         public static async Task RemoveServer(CalDavServer server)
         {
+            await DeleteLocalCalendars(server);
+            using (var db = new CalDavContext())
+            {
+                db.Remove(server);
+                await db.SaveChangesAsync();
+            }
+        }
+
+        public static async Task DeleteLocalCalendars(CalDavServer server)
+        {
             var store = await getStore();
             using (var db = new CalDavContext())
             {
                 server = await db.FindAsync<CalDavServer>(server.Id);
                 if (server.Calendars != null)
                 {
-                    foreach(var calendar in server.Calendars)
+                    foreach (var calendar in server.Calendars)
                     {
                         var appCal = await GetAppointmentCalendar(calendar);
                         await appCal?.DeleteAsync();
@@ -37,7 +47,7 @@ namespace CalDav.Helpers
                     db.RemoveRange(server.Calendars);
                     server.Calendars.Clear();
                 }
-                db.Remove(server);
+                db.Update(server);
                 await db.SaveChangesAsync();
             }
         }
@@ -59,16 +69,15 @@ namespace CalDav.Helpers
             return result;
         }
 
-        public static async Task<bool> ValidateServer(CalDavServer server)
+        public static async Task<bool> ValidateServer(CalDavServer server, bool reset = false)
         {
             using (var db = new CalDavContext())
             {
-                server.UserDir = null;
-                server.CalendarHomeSet = null;
-                if (server.Calendars != null)
+                if (reset)
                 {
-                    db.RemoveRange(server.Calendars);
-                    server.Calendars.Clear();
+                    server.UserDir = null;
+                    server.CalendarHomeSet = null;
+                    await DeleteLocalCalendars(server);
                 }
                 await db.SaveChangesAsync();
                 try
