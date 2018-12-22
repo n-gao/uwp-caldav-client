@@ -142,36 +142,18 @@ namespace CalDav.Extensions
             if (rule == null)
                 return null;
             var result = new AppointmentRecurrence();
-
-            /*
-            if (rule.ByYearDay.Count > 0)
-            {
-                var year = DateTime.Now.Year;
-                var help = new DateTime(year, 1, 1).AddDays(rule.ByYearDay[0] - 1);
-                result.Month = (uint) help.Month;
-                result.Day = (uint) help.Day;
-            }
-
-
-            if (rule.ByMonthDay.Count > 0)
-                result.Day = (uint) rule.ByMonthDay[0];
-            if (rule.ByMonth.Count > 0)
-                result.Month = (uint) rule.ByMonth[0];
-            result.DaysOfWeek = rule.ByDay.ToAppDaysOfWeek();
-            result.Until = rule.Until;
-            */
-
-
-            result.Interval = (uint)rule.Interval;
-            result.DaysOfWeek = rule.ByDay.ToAppDaysOfWeek(self.DtStart.Date.DayOfWeek.ToAppDayOfWeek());
             
-
-            if (rule.Until != null)
+            result.Interval = (uint)rule.Interval;
+            
+            if (rule.Until.Year != 1)
             {
                 result.Until = rule.Until;
             } else
             {
-                result.Occurrences = (uint)rule.Count;
+                if (rule.Count > 0)
+                    result.Occurrences = (uint)rule.Count;
+                else
+                    result.Occurrences = null;
             }
 
             if (rule.ByYearDay.Count > 0)
@@ -190,18 +172,22 @@ namespace CalDav.Extensions
             {
                 case FrequencyType.Daily:
                     result.Unit = AppointmentRecurrenceUnit.Daily;
+                    result.DaysOfWeek = rule.ByDay.ToAppDaysOfWeek(self.DtStart.Date.DayOfWeek.ToAppDayOfWeek());
                     break;
                 case FrequencyType.Weekly:
                     result.Unit = AppointmentRecurrenceUnit.Weekly;
+                    result.DaysOfWeek = rule.ByDay.ToAppDaysOfWeek(self.DtStart.Date.DayOfWeek.ToAppDayOfWeek());
                     break;
                 case FrequencyType.Monthly:
-                    if (result.DaysOfWeek == AppointmentDaysOfWeek.None)
+                    result.DaysOfWeek = rule.ByDay.ToAppDaysOfWeek(AppointmentDaysOfWeek.None);
+                    if (result.DaysOfWeek != AppointmentDaysOfWeek.None)
                         result.Unit = AppointmentRecurrenceUnit.Monthly;
                     else
                         result.Unit = AppointmentRecurrenceUnit.MonthlyOnDay;
                     break;
                 case FrequencyType.Yearly:
-                    if (result.DaysOfWeek == AppointmentDaysOfWeek.None)
+                    result.DaysOfWeek = rule.ByDay.ToAppDaysOfWeek(AppointmentDaysOfWeek.None);
+                    if (result.DaysOfWeek != AppointmentDaysOfWeek.None)
                         result.Unit = AppointmentRecurrenceUnit.Yearly;
                     else
                         result.Unit = AppointmentRecurrenceUnit.YearlyOnDay;

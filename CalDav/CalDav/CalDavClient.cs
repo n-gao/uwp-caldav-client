@@ -19,10 +19,11 @@ using Windows.ApplicationModel.Appointments;
 
 using CalDav.Models;
 using CalDav.Extensions;
+using CalDav.Helpers;
 
 namespace CalDav.CalDav
 {
-    public class CalDavClient
+    public class CalDavClient : IDisposable
     {
         private static readonly XNamespace xDav = XNamespace.Get("DAV:");
         private static readonly XNamespace xCalDav = XNamespace.Get("urn:ietf:params:xml:ns:caldav");
@@ -121,6 +122,16 @@ namespace CalDav.CalDav
             )
         );
 
+        private static XDocument SyncTokenQuery = new XDocument(
+            new XElement(xPropfind,
+                xCalSerAtr,
+                xDavAtr,
+                new XElement(xProp,
+                    new XElement(xSyncToken)
+                )
+            )
+        );
+
         private static XDocument GetSyncToken = new XDocument(
             new XElement(xPropfind,
                 xCalSerAtr,
@@ -168,6 +179,11 @@ namespace CalDav.CalDav
         {
             Server = server ?? throw new ArgumentNullException("Server must not be null");
             Db = new CalDavContext();
+        }
+
+        public void Dispose()
+        {
+            Db.Dispose();
         }
 
         public CalDavClient(string host, string username, string password)
@@ -222,7 +238,7 @@ namespace CalDav.CalDav
         public async Task DeleteAppointment(CalDavCalendar calendar, string href, string etag)
         {
             if (string.IsNullOrEmpty(href))
-                return;
+                return; 
             var (code, content, headers) = await Request(calendar.Href + $"{href}.ics", "DELETE", "", etag: etag);
         }
 
@@ -239,7 +255,7 @@ namespace CalDav.CalDav
                     Debug.WriteLine(change.ChangeType);
                     if ((int)change.ChangeType < 3)
                     {
-                        cal = await GetCalendar(await LocalStore.GetAppointmentCalendarAsync(change.Appointment.CalendarId));
+                        cal = await CalDavHelper.GetCalendar(await LocalStore.GetAppointmentCalendarAsync(change.Appointment.CalendarId));
                         app = cal.Appointments.FirstOrDefault(a => a.Href == change.Appointment.RoamingId && a.Calendar == cal);
                     }
                     switch (change.ChangeType)
@@ -315,7 +331,7 @@ namespace CalDav.CalDav
 
         private async Task AddAppointment(CalDavCalendar calendar, string href, string etag, string ics)
         {
-            var cal = await GetAppointmentCalendar(calendar);
+            var cal = await CalDavHelper.GetAppointmentCalendar(calendar);
 
             // Ensure no duplicates
             await RemoveAppointment(calendar, href);
@@ -327,7 +343,7 @@ namespace CalDav.CalDav
             await Db.Appointments.AddAsync(new CalDavAppointment
             {
                 Calendar = calendar,
-                CalHref = calendar.Href,
+                CalendarId = calendar.Id,
                 Href = href,
                 Etag = etag,
                 LocalId = appointment.LocalId
@@ -337,7 +353,7 @@ namespace CalDav.CalDav
 
         private async Task RemoveAppointment(CalDavCalendar calendar, string href)
         {
-            var cal = await GetAppointmentCalendar(calendar);
+            var cal = await CalDavHelper.GetAppointmentCalendar(calendar);
             try
             {
                 var app = await Db.Appointments.FirstAsync(a => a.Calendar == calendar && a.Href == href);
@@ -383,7 +399,7 @@ namespace CalDav.CalDav
             Db.Update(calendar);
             await Db.SaveChangesAsync();
         }
-
+         
         private async Task GetCalendars()
         {
             var (code, content, headers) = await Request(Server.CalendarHomeSet, "PROPFIND", CalendarSearch.ToString(), depth: 1);
@@ -422,41 +438,14 @@ namespace CalDav.CalDav
                             Href = href,
                             Ctag = ctag,
                             SyncToken = syncToken,
-                            DisplayName = displayname
+                            Displayname = displayname,
+                            LocalId = null
                         };
-                        var calendars = await LocalStore.FindAppointmentCalendarsAsync(FindAppointmentCalendarsOptions.IncludeHidden);
-                        var cal = calendars.FirstOrDefault(c => c.RemoteId == calendar.Href);
-                        if (cal == null)
-                        {
-                            cal = await LocalStore.CreateAppointmentCalendarAsync(displayname);
-                            cal.CanCancelMeetings = false;
-                            cal.CanCreateOrUpdateAppointments = true;
-                            cal.CanForwardMeetings = false;
-                            cal.CanNotifyInvitees = false;
-                            cal.OtherAppReadAccess = AppointmentCalendarOtherAppReadAccess.Full;
-                            cal.OtherAppWriteAccess = AppointmentCalendarOtherAppWriteAccess.Limited;
-                        }
-                        cal.DisplayName = displayname;
-                        cal.RemoteId = calendar.Href;
-                        calendar.LocalId = cal.LocalId;
-                        await cal.SaveAsync();
-
                         await Db.Calendars.AddAsync(calendar);
                         await Db.SaveChangesAsync();
                     }
                 }
             }
-        }
-
-        private async Task<CalDavCalendar> GetCalendar(AppointmentCalendar cal)
-        {
-            return await Db.Calendars.FirstOrDefaultAsync(c => c.Href == cal.RemoteId && c.ServerId == Server.Id);
-        }
-
-        private async Task<AppointmentCalendar> GetAppointmentCalendar(CalDavCalendar cal)
-        {
-            var calendars = await LocalStore.FindAppointmentCalendarsAsync(FindAppointmentCalendarsOptions.IncludeHidden);
-            return calendars.FirstOrDefault(c => c.RemoteId == cal.Href);
         }
 
         private async Task<string> GetCalendarHomeSet()
@@ -529,6 +518,10 @@ namespace CalDav.CalDav
             } catch(WebException e)
             {
                 response = e.Response as HttpWebResponse;
+                if (response == null)
+                {
+                    throw e;
+                }
             }
             string reqContent = "";
             using (var stream = response.GetResponseStream())

@@ -1,9 +1,15 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 using Windows.ApplicationModel.Background;
 using Windows.System.Threading;
+
+using Microsoft.EntityFrameworkCore;
+
+using CalDav.Models;
+using CalDav.CalDav;
 
 namespace CalDav.BackgroundTasks
 {
@@ -45,7 +51,7 @@ namespace CalDav.BackgroundTasks
 
             _deferral = taskInstance.GetDeferral();
 
-            return Task.Run(() =>
+            return Task.Run(async () =>
             {
                 //// TODO WTS: Insert the code that should be executed in the background task here.
                 //// This sample initializes a timer that counts to 100 in steps of 10.  It updates Message each time.
@@ -72,8 +78,21 @@ namespace CalDav.BackgroundTasks
            // Documentation: https://docs.microsoft.com/windows/uwp/launch-resume/handle-a-cancelled-background-task
         }
 
-        private void SampleTimerCallback(ThreadPoolTimer timer)
+        private async void SampleTimerCallback(ThreadPoolTimer timer)
         {
+            /*
+            Debug.WriteLine("Syncing...");
+            using (var db = new CalDavContext())
+            {
+                var calendars = await db.Calendars.Where(c => c.ShouldSync).ToListAsync();
+                foreach (var cal in calendars)
+                {
+                    using (var client = new CalDavClient(cal.Server))
+                    {
+                        await client.UploadChanges();
+                    }
+                }
+            }*/
             if ((_cancelRequested == false) && (_taskInstance.Progress < 100))
             {
                 _taskInstance.Progress += 10;

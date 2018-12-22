@@ -2,6 +2,7 @@
 
 using CalDav.Services;
 
+using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.Activation;
 using Windows.UI.Xaml;
 
@@ -38,6 +39,8 @@ namespace CalDav
             {
                 await ActivationService.ActivateAsync(args);
             }
+            var coreTitleBar = CoreApplication.GetCurrentView().TitleBar;
+            coreTitleBar.ExtendViewIntoTitleBar = true;
         }
 
         protected override async void OnActivated(IActivatedEventArgs args)

@@ -21,12 +21,16 @@ namespace CalDav.Models
             modelBuilder.Entity<CalDavCalendar>()
                 .HasMany(c => c.Appointments)
                 .WithOne(a => a.Calendar)
-                .HasForeignKey(a => a.CalHref);
+                .HasForeignKey(a => a.CalendarId);
 
             modelBuilder.Entity<CalDavServer>()
                 .HasMany(s => s.Calendars)
                 .WithOne(c => c.Server)
                 .HasForeignKey(c => c.ServerId);
+
+            modelBuilder.Entity<CalDavAppointment>()
+                .HasKey(a => new { a.CalendarId, a.Href });
+
         }
     }
 }

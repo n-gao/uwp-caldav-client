@@ -4,16 +4,87 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     Style="{StaticResource PageStyle}"
     mc:Ignorable="d">
     <Grid
         x:Name="ContentArea"
-        Margin="{StaticResource MediumLeftRightMargin}">
-        <Grid
-            Background="{ThemeResource SystemControlPageBackgroundChromeLowBrush}">
-            <!--The SystemControlPageBackgroundChromeLowBrush background represents where you should place your content. 
-                Place your content here.-->
-            <Button Click="Button_Click" Style="{StaticResource ButtonRevealStyle}">Test</Button>
-        </Grid>
+        Margin="{StaticResource MediumLeftRightMargin}"
+        Loaded="PageLoaded">
+        <RelativePanel>
+            <StackPanel
+                x:Name="ServerForm"
+                Width="200">
+                <TextBlock
+                    FontSize="{StaticResource TextStyleExtraLargeFontSize}"
+                    x:Uid="Server_Address"/>
+                <TextBox
+                    x:Name="ServerAdressBox"
+                    Style="{ThemeResource ComboBoxTextBoxStyle}"
+                    x:Uid="Server_Address_Hint"/>
+                <TextBlock
+                    FontSize="{StaticResource TextStyleExtraLargeFontSize}"
+                    Margin="{StaticResource SmallTopMargin}"
+                    x:Uid="Username"/>
+                <TextBox
+                    x:Name="UsernameBox"
+                    x:Uid="Username_Hint"/>
+                <TextBlock
+                    FontSize="{StaticResource TextStyleExtraLargeFontSize}"
+                    Margin="{StaticResource SmallTopMargin}"
+                    x:Uid="Password"/>
+                <PasswordBox
+                    x:Name="PasswordBox"
+                    x:Uid="Password_Hint"/>
+                <Button
+                    Click="AddButtonClick"
+                    Style="{StaticResource ButtonRevealStyle}"
+                    Width="100"
+                    Margin="{StaticResource SmallTopMargin}"
+                    >
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock FontSize="18" FontFamily="Segoe MDL2 Assets">&#xE710;</TextBlock>
+                        <TextBlock Margin="8, 0, 0, 0">Add</TextBlock>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+            <controls:DataGrid
+                x:Name="DataGrid"
+                Margin="{StaticResource MediumTopMargin}"
+                AutoGenerateColumns="false"
+                RelativePanel.Below="ServerForm"
+                RelativePanel.AlignLeftWith="ServerForm"
+                RelativePanel.AlignBottomWithPanel="true"
+                RelativePanel.AlignRightWithPanel="true"
+                RowEditEnded="RowEdited"
+                ItemsSource="{x:Bind Servers}"
+                KeyDown="DataGridKeyDown">
+                <controls:DataGrid.Columns>
+                    <controls:DataGridTextColumn x:Uid="GridColumn_Host" Binding="{Binding Host}"/>
+                    <controls:DataGridTextColumn x:Uid="GridColumn_Username" Binding="{Binding Username}"/>
+                    <controls:DataGridTextColumn x:Uid="GridColumn_Password" Binding="{Binding Password}"/>
+                    <controls:DataGridCheckBoxColumn x:Uid="GridColumn_Valid" Binding="{Binding Valid}"/>
+                    <controls:DataGridTemplateColumn x:Uid="GridColumn_Actions">
+                        <controls:DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button
+                                        Click="RefreshClicked"
+                                        FontFamily="Segoe MDL2 Assets"
+                                        Content="&#xE72C;"
+                                        Style="{StaticResource ButtonRevealStyle}" />
+                                    <Button
+                                        Click="DeleteClicked"
+                                        FontFamily="Segoe MDL2 Assets"
+                                        Content="&#xE74D;"
+                                        Style="{StaticResource ButtonRevealStyle}"
+                                        Margin="8, 0, 0, 0" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </controls:DataGridTemplateColumn.CellTemplate>
+                    </controls:DataGridTemplateColumn>
+                </controls:DataGrid.Columns>
+            </controls:DataGrid>
+        </RelativePanel>
     </Grid>
 </Page>

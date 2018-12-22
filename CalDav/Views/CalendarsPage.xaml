@@ -1,0 +1,43 @@
+﻿<Page
+    x:Class="CalDav.Views.CalendarsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    mc:Ignorable="d"
+    Style="{StaticResource PageStyle}"
+    Loaded="PageLoaded">
+
+    <RelativePanel>
+        <controls:DataGrid
+            x:Name="DataGrid"
+            Margin="{StaticResource MediumLeftTopRightBottomMargin}"
+            AutoGenerateColumns="False"
+            RelativePanel.AlignTopWithPanel="true"
+            RelativePanel.AlignLeftWithPanel="true"
+            RelativePanel.AlignBottomWithPanel="true"
+            RelativePanel.AlignRightWithPanel="true"
+            ItemsSource="{x:Bind Calendars}"
+            RowEditEnded="RowEdited">
+            <controls:DataGrid.Columns>
+                <controls:DataGridTextColumn x:Uid="GridColumn_Name" Binding="{Binding Displayname}" IsReadOnly="True"/>
+                <controls:DataGridTextColumn x:Uid="GridColumn_Host" Binding="{Binding Server.Host}" IsReadOnly="True"/>
+                <controls:DataGridTextColumn x:Uid="GridColumn_Username" Binding="{Binding Server.Username}" IsReadOnly="True"/>
+                <controls:DataGridTextColumn x:Uid="GridColumn_Href" Binding="{Binding Href}" IsReadOnly="True"/>
+                <controls:DataGridCheckBoxColumn x:Uid="GridColumn_Connected" Binding="{Binding ShouldSync}" IsReadOnly="False" />
+                <controls:DataGridTemplateColumn x:Uid="GridColumn_Actions">
+                    <controls:DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button
+                                Click="RefreshClicked"
+                                FontFamily="Segoe MDL2 Assets"
+                                Content="&#xE72C;"
+                                Style="{StaticResource ButtonRevealStyle}" />
+                        </DataTemplate>
+                    </controls:DataGridTemplateColumn.CellTemplate>
+                </controls:DataGridTemplateColumn>
+            </controls:DataGrid.Columns>
+        </controls:DataGrid>
+    </RelativePanel>
+</Page>

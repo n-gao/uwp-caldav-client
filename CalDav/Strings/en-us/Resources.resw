@@ -126,7 +126,52 @@
     <comment>Application description</comment>
   </data>
   <data name="Shell_Main.Content" xml:space="preserve">
-    <value>Main</value>
+    <value>Servers</value>
     <comment>Navigation view item name for Main</comment>
+  </data>
+  <data name="Shell_Calendars.Content" xml:space="preserve">
+    <value>Calendars</value>
+  </data>
+  <data name="Username.Text" xml:space="preserve">
+    <value>Username</value>
+  </data>
+  <data name="GridColumn_Actions.Header" xml:space="preserve">
+    <value>Actions</value>
+  </data>
+  <data name="GridColumn_Connected.Header" xml:space="preserve">
+    <value>Synchronized</value>
+  </data>
+  <data name="GridColumn_Host.Header" xml:space="preserve">
+    <value>Host</value>
+  </data>
+  <data name="GridColumn_Href.Header" xml:space="preserve">
+    <value>Location</value>
+  </data>
+  <data name="GridColumn_Name.Header" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="GridColumn_Password.Header" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="GridColumn_Username.Header" xml:space="preserve">
+    <value>Username</value>
+  </data>
+  <data name="GridColumn_Valid.Header" xml:space="preserve">
+    <value>Valid</value>
+  </data>
+  <data name="Password.Text" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="Password_Hint.PlaceholderText" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="Server_Address.Text" xml:space="preserve">
+    <value>Server Address</value>
+  </data>
+  <data name="Server_Address_Hint.PlaceholderText" xml:space="preserve">
+    <value>Server Address</value>
+  </data>
+  <data name="Username_Hint.PlaceholderText" xml:space="preserve">
+    <value>Username</value>
   </data>
 </root>

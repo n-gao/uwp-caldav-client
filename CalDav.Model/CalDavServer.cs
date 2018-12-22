@@ -19,5 +19,7 @@ namespace CalDav.Models
         public string CalendarHomeSet { get; set; }
         [InverseProperty("Server")]
         public virtual List<CalDavCalendar> Calendars { get; set; }
+
+        public bool Valid => UserDir != null && CalendarHomeSet != null;
     }
 }
