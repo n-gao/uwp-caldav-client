@@ -139,6 +139,10 @@ namespace CalDav.Helpers
                 db.Update(calendar);
                 await db.SaveChangesAsync();
             }
+            if (state)
+            {
+                await SynchronizeCalendar(calendar);
+            }
         }
 
         public static async Task<CalDavCalendar> GetCalendar(AppointmentCalendar cal)

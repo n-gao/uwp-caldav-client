@@ -156,18 +156,6 @@ namespace CalDav.Extensions
                     result.Occurrences = null;
             }
 
-            if (rule.ByYearDay.Count > 0)
-            {
-                var year = DateTime.Now.Year;
-                var help = new DateTime(year, 1, 1).AddDays(rule.ByYearDay[0] - 1);
-                result.Month = (uint)help.Month;
-                result.Day = (uint)help.Day;
-            }
-            if (rule.ByMonthDay.Count > 0)
-                result.Day = (uint)rule.ByMonthDay[0];
-            if (rule.ByMonth.Count > 0)
-                result.Month = (uint)rule.ByMonth[0];
-
             switch (rule.Frequency)
             {
                 case FrequencyType.Daily:
@@ -181,16 +169,40 @@ namespace CalDav.Extensions
                 case FrequencyType.Monthly:
                     result.DaysOfWeek = rule.ByDay.ToAppDaysOfWeek(AppointmentDaysOfWeek.None);
                     if (result.DaysOfWeek != AppointmentDaysOfWeek.None)
-                        result.Unit = AppointmentRecurrenceUnit.Monthly;
-                    else
                         result.Unit = AppointmentRecurrenceUnit.MonthlyOnDay;
+                    else
+                    {
+                        result.Unit = AppointmentRecurrenceUnit.Monthly;
+                        if (rule.ByMonthDay.Count > 0)
+                            result.Day = (uint)rule.ByMonthDay[0];
+                        else
+                            result.Day = (uint)self.DtStart.AsDateTimeOffset.Day;
+                    }
                     break;
                 case FrequencyType.Yearly:
                     result.DaysOfWeek = rule.ByDay.ToAppDaysOfWeek(AppointmentDaysOfWeek.None);
                     if (result.DaysOfWeek != AppointmentDaysOfWeek.None)
-                        result.Unit = AppointmentRecurrenceUnit.Yearly;
-                    else
                         result.Unit = AppointmentRecurrenceUnit.YearlyOnDay;
+                    else
+                    {
+                        result.Unit = AppointmentRecurrenceUnit.Yearly;
+
+                        if (rule.ByYearDay.Count > 0)
+                        {
+                            var year = DateTime.Now.Year;
+                            var help = new DateTime(year, 1, 1).AddDays(rule.ByYearDay[0] - 1);
+                            result.Month = (uint)help.Month;
+                            result.Day = (uint)help.Day;
+                        }
+                        if (rule.ByMonthDay.Count > 0)
+                            result.Day = (uint)rule.ByMonthDay[0];
+                        else
+                            result.Day = (uint)self.DtStart.AsDateTimeOffset.Day;
+                        if (rule.ByMonth.Count > 0)
+                            result.Month = (uint)rule.ByMonth[0];
+                        else
+                            result.Month = (uint)self.DtStart.AsDateTimeOffset.Month;
+                    }
                     break;
                 default:
                     return null;
