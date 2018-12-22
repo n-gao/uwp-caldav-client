@@ -4,7 +4,7 @@
   <mp:PhoneIdentity PhoneProductId="D2803A5C-E3E1-459A-AC3F-B8DBDFF18D48" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
     <DisplayName>CalDav</DisplayName>
-    <PublisherDisplayName>nicho</PublisherDisplayName>
+    <PublisherDisplayName>Nicholas Gao</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
   <Dependencies>

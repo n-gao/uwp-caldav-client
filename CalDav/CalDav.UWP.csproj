@@ -153,6 +153,7 @@
     <Compile Include="Behaviors\NavigationViewHeaderBehavior.cs" />
     <Compile Include="Behaviors\NavigationViewHeaderMode.cs" />
     <Compile Include="CalDav\CalDavClient.cs" />
+    <Compile Include="CalDav\CalDavClient_Constants.cs" />
     <Compile Include="Extensions\CalendarExtension.cs" />
     <Compile Include="Helpers\CalDavHelper.cs" />
     <Compile Include="Helpers\NavHelper.cs" />
