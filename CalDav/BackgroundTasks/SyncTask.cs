@@ -37,6 +37,7 @@ namespace CalDav.BackgroundTasks
                 // More details at https://docs.microsoft.com/windows/uwp/launch-resume/create-and-register-an-inproc-background-task
                 builder.SetTrigger(new TimeTrigger(15, false));
                 builder.AddCondition(new SystemCondition(SystemConditionType.UserPresent));
+                builder.AddCondition(new SystemCondition(SystemConditionType.InternetAvailable));
 
                 builder.Register();
             }
@@ -66,7 +67,27 @@ namespace CalDav.BackgroundTasks
                 //// You can do this via "BackgroundTaskService.GetBackgroundTasksRegistration"
 
                 _taskInstance = taskInstance;
-                ThreadPoolTimer.CreatePeriodicTimer(new TimerElapsedHandler(SampleTimerCallback), TimeSpan.FromSeconds(1));
+
+                Debug.WriteLine("Syncing...");
+                using (var db = new CalDavContext())
+                {
+                    var servers = await db.Servers.ToListAsync();
+                    foreach (var server in servers)
+                    {
+                        using (var client = new CalDavClient(server))
+                        {
+                            try
+                            {
+                                await client.Prepare();
+                                foreach (var cal in server.Calendars.Where(c => c.ShouldSync))
+                                {
+                                    await client.SyncCalendar(cal);
+                                }
+                            } catch (Exception) { }
+                        }
+                    }
+                }
+                _deferral?.Complete();
             });
         }
 
@@ -76,43 +97,6 @@ namespace CalDav.BackgroundTasks
 
            // TODO WTS: Insert code to handle the cancelation request here.
            // Documentation: https://docs.microsoft.com/windows/uwp/launch-resume/handle-a-cancelled-background-task
-        }
-
-        private async void SampleTimerCallback(ThreadPoolTimer timer)
-        {
-            /*
-            Debug.WriteLine("Syncing...");
-            using (var db = new CalDavContext())
-            {
-                var calendars = await db.Calendars.Where(c => c.ShouldSync).ToListAsync();
-                foreach (var cal in calendars)
-                {
-                    using (var client = new CalDavClient(cal.Server))
-                    {
-                        await client.UploadChanges();
-                    }
-                }
-            }*/
-            if ((_cancelRequested == false) && (_taskInstance.Progress < 100))
-            {
-                _taskInstance.Progress += 10;
-                Message = $"Background Task {_taskInstance.Task.Name} running";
-            }
-            else
-            {
-                timer.Cancel();
-
-                if (_cancelRequested)
-                {
-                    Message = $"Background Task {_taskInstance.Task.Name} cancelled";
-                }
-                else
-                {
-                    Message = $"Background Task {_taskInstance.Task.Name} finished";
-                }
-
-                _deferral?.Complete();
-            }
         }
     }
 }
